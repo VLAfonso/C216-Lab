@@ -1,4 +1,5 @@
 from copy import deepcopy
+
 import pytest
 from fastapi import status
 from fastapi.testclient import TestClient
@@ -40,6 +41,7 @@ def test_get_book_existing(client):
     assert response.json()["name"] == "A Vida Invisível de Addie LaRue"
     assert response.json()["author"] == "V. E. Schwab"
     assert response.json()["publisher"] == "Galera Record"
+
 
 @pytest.mark.parametrize("book_id", [0, 1000])
 def test_get_book_not_found(client, book_id):

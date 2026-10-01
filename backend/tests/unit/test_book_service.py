@@ -1,4 +1,5 @@
 from copy import deepcopy
+
 import pytest
 
 from src.app.schemas.book import BookCreate, BookUpdate
@@ -32,6 +33,7 @@ def test_get_book_existing():
     assert book["name"] == "A Vida Invisível de Addie LaRue"
     assert book["author"] == "V. E. Schwab"
     assert book["publisher"] == "Galera Record"
+
 
 def test_get_book_not_found():
     book = book_service.get_book(1000)
@@ -72,6 +74,7 @@ def test_update_book():
     assert book["publisher"] == book_data.publisher
     assert book in book_service.books
 
+
 def test_update_book_not_found():
     book_data = BookCreate(
         name="Lugar errado, hora errada",
@@ -97,6 +100,7 @@ def test_patch_book():
     assert book["author"] == "V. E. Schwab"
     assert book["publisher"] == "Galera Record"
 
+
 def test_patch_book_not_found():
     book_data = BookUpdate(
         name="Novo Nome",
@@ -117,6 +121,7 @@ def test_delete_book():
     assert book["author"] == "V. E. Schwab"
     assert book["publisher"] == "Galera Record"
     assert book_service.get_book(1) is None
+
 
 def test_delete_book_not_found():
     book = book_service.delete_book(1000)
