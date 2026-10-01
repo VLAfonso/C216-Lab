@@ -1,13 +1,7 @@
 from fastapi import FastAPI
 
+from src.app.api.routes.books import router as books_router
+
 app = FastAPI()
 
-
-@app.get("/")
-def home():
-    return {"message": "Olá, Sistemas Distribuídos!"}
-
-
-@app.get("/hello/{name}")
-def hello(name: str):
-    return {"message": f"Olá, {name}!"}
+app.include_router(books_router)
