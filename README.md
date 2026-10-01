@@ -21,7 +21,11 @@ C216-Lab/
 │   │           └── book.py
 │   │
 │   ├── tests/
-│   │   └── test_main.py
+│   │   ├── integration/
+│   │   │   └── test_book_routes.py
+│   │   └── unit/
+│   │       ├── test_book_routes.py
+│   │       └── test_book_services.py
 │   │
 │   ├── .dockerignore
 │   ├── Dockerfile
