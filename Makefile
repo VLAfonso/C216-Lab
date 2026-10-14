@@ -1,4 +1,4 @@
-.PHONY: up down ps logs build up-build clean shell install test lint format run help
+.PHONY: up down ps logs build up-build clean shell install test test-unit test-integration lint format run help
 
 BACKEND := cd backend
 POETRY := $(BACKEND) && poetry run
@@ -35,6 +35,12 @@ install:
 test:
 	$(PYTEST)
 
+test-unit:
+	$(PYTEST) tests/unit
+
+test-integration:
+	$(PYTEST) tests/integration
+
 lint:
 	$(POETRY) ruff check .
 
@@ -46,16 +52,18 @@ run:
 
 help:
 	@echo "Comandos disponiveis:"
-	@echo "  make install  - instala dependencias"
-	@echo "  make test     - executa testes"
-	@echo "  make lint     - verifica o codigo"
-	@echo "  make format   - formata o codigo"
-	@echo "  make run      - inicia o servidor"
-	@echo "  make up       - inicia containers em segundo plano"
-	@echo "  make down     - para e remove os containers"
-	@echo "  make ps       - mostra status dos containers"
-	@echo "  make logs     - exibe logs containers em tempo real"
-	@echo "  make build    - controi as imagens"
-	@echo "  make up-build - constroi e inicia os containers"
-	@echo "  make clean    - para, remove os containers e seus volumes"
-	@echo "  make shell    - abre o terminal do container api"
+	@echo "  make install  			- instala dependencias"
+	@echo "  make test     			- executa todos testes"
+	@echo "  make test-unit         - executa os testes unitarios"
+	@echo "  make test-integration  - executa os testes de integracao"
+	@echo "  make lint     			- verifica o codigo"
+	@echo "  make format   			- formata o codigo"
+	@echo "  make run      			- inicia o servidor"
+	@echo "  make up       			- inicia containers em segundo plano"
+	@echo "  make down     			- para e remove os containers"
+	@echo "  make ps       			- mostra status dos containers"
+	@echo "  make logs     			- exibe logs containers em tempo real"
+	@echo "  make build    			- controi as imagens"
+	@echo "  make up-build 			- constroi e inicia os containers"
+	@echo "  make clean    			- para, remove os containers e seus volumes"
+	@echo "  make shell    			- abre o terminal do container api"
