@@ -6,6 +6,8 @@ ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
 COPY pyproject.toml poetry.lock ./
+COPY alembic.ini ./alembic.ini
+COPY alembic ./alembic
 COPY src ./src
 
 RUN pip install --no-cache-dir poetry \
