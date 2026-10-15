@@ -1,74 +1,65 @@
-books = [
-    {
-        "id": 1,
-        "name": "A Vida Invisível de Addie LaRue",
-        "author": "V. E. Schwab",
-        "publisher": "Galera Record",
-    },
-    {
-        "id": 2,
-        "name": "Amanhã, amanhã e ainda outro amanhã",
-        "author": "A. J. Fikry",
-        "publisher": "Rocco",
-    },
-]
+from src.app.models.book import Book
+from src.app.repositories.book import BookRepository
+from src.app.schemas.book import BookCreate, BookUpdate
 
 
-def list_books():
-    return books
+class BookNotFoundError(Exception):
+    pass
 
 
-def get_book(book_id: int):
-    for book in books:
-        if book["id"] == book_id:
-            return book
-
-    return None
+class BookAlreadyExistsError(Exception):
+    pass
 
 
-def create_book(book_data):
-    next_id = max((book["id"] for book in books), default=0) + 1
+class BookService:
+    """Regras de negócio dos itens. Não conhece HTTP nem SQL."""
 
-    book = {
-        "id": next_id,
-        "name": book_data.name,
-        "author": book_data.author,
-        "publisher": book_data.publisher,
-    }
+    def __init__(self, repository: BookRepository):
+        self.repository = repository
 
-    books.append(book)
+    def list_books(self, skip: int = 0, limit: int = 100) -> list[Book]:
+        return self.repository.get_all(skip, limit)
 
-    return book
+    def get_book(self, book_id: int) -> Book:
+        book = self.repository.get_by_id(book_id)
+        if book is None:
+            raise BookNotFoundError(book_id)
+        return book
 
+    def create_book(self, book_data) -> Book:
+        # Regra de negócio: o nome do livro deve ser único.
+        if self.repository.get_by_name(book_data.name):
+            raise BookAlreadyExistsError(book_data.name)
+        return self.repository.create(
+            book_data.name, book_data.author, book_data.publisher
+        )
 
-def update_book(book_id: int, book):
-    existing_book = get_book(book_id)
+    def update_book(self, book_id: int, book_data: BookCreate) -> Book:
+        # Atualização total
+        book = self.get_book(book_id)
+        changes = book_data.model_dump()
 
-    if existing_book is None:
-        return None
+        if changes["name"] != book.name and self.repository.get_by_name(
+            changes["name"]
+        ):
+            raise BookAlreadyExistsError(changes["name"])
 
-    existing_book.update(book.model_dump())
+        return self.repository.update(book, changes)
 
-    return existing_book
+    def patch_book(self, book_id: int, book_data: BookUpdate) -> Book:
+        # Atualização parcial
+        book = self.get_book(book_id)
+        changes = book_data.model_dump(exclude_unset=True)
 
+        for field in ("name", "author", "publisher"):
+            if changes.get(field) is None:
+                changes.pop(field, None)
 
-def patch_book(book_id: int, book):
-    existing_book = get_book(book_id)
+        if "name" in changes and changes["name"] != book.name:
+            if self.repository.get_by_name(changes["name"]):
+                raise BookAlreadyExistsError(changes["name"])
 
-    if existing_book is None:
-        return None
+        return self.repository.update(book, changes)
 
-    existing_book.update(book.model_dump(exclude_unset=True))
-
-    return existing_book
-
-
-def delete_book(book_id: int):
-    book = get_book(book_id)
-
-    if book is None:
-        return None
-
-    books.remove(book)
-
-    return book
+    def delete_book(self, book_id: int) -> None:
+        self.repository.delete(self.get_book(book_id))
