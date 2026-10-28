@@ -1,9 +1,10 @@
-.PHONY: up down ps logs build up-build clean shell install test test-unit test-integration lint format run help db-upgrade db-downgrade db-current db-history db-migration db-psql
+.PHONY: up down ps logs build up-build clean shell install test test-unit test-integration lint format run help db-upgrade db-downgrade db-current db-history db-migration db-psql frontend-install frontend-dev frontend-lint frontend-format frontend-check frontend-test frontend-test-e2e frontend-build check-all
 
 BACKEND := cd backend
 POETRY := $(BACKEND) && poetry run
 PYTEST := $(POETRY) pytest
 COMPOSE := docker compose
+NPM := npm --prefix frontend
 
 up:
 	$(COMPOSE) up -d
@@ -69,6 +70,32 @@ db-migration:
 db-psql:
 	$(COMPOSE) exec db sh -c 'psql -U $$POSTGRES_USER -d $$POSTGRES_DB'
 
+frontend-install:
+	$(NPM) ci
+
+frontend-dev:
+	$(NPM) run dev
+
+frontend-lint:
+	$(NPM) run lint
+
+frontend-format:
+	$(NPM) run format
+
+frontend-check:
+	$(NPM) run check
+
+frontend-test:
+	$(NPM) run test
+
+frontend-test-e2e:
+	$(NPM) run test:e2e
+
+frontend-build:
+	$(NPM) build
+
+check-all: lint test frontend-check frontend-test frontend-build frontend-test-e2e
+
 help:
 	@echo "Comandos disponiveis:"
 	@echo "  make install  			              - instala dependencias"
@@ -92,3 +119,12 @@ help:
 	@echo "  make db-history                      - lista o historico de migrations"
 	@echo "  make db-migration MSG=\"descricao\"  - gera uma nova migration"
 	@echo "  make db-psql                         - abre o psql no container db"
+	@echo "  make frontend-install                - instala dependencias do frontend"
+	@echo "  make frontend-dev                    - inicia o servidor de desenvolvimento"
+	@echo "  make frontend-lint                   - verifica o codigo do frontend"
+	@echo "  make frontend-format                 - formata o codigo do frontend"
+	@echo "  make frontend-check                  - executa as verificacoes do frontend"
+	@echo "  make frontend-test                   - executa os testes do frontend"
+	@echo "  make frontend-test-e2e               - executa os testes E2E"
+	@echo "  make frontend-build                  - gera o build de producao"
+	@echo "  make check-all                       - executa todas as verificacoes"
