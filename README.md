@@ -6,7 +6,8 @@ Repositório destinado aos códigos desenvolvidos no laboratório da disciplina 
 C216-Lab/
 ├── .github
 │   ├── workflows
-│   │   └── ci-backend.yml
+│       ├── ci-backend.yml
+│       └── ci-frontend.yml
 │
 ├── backend/
 │   ├── alembic/
@@ -45,6 +46,34 @@ C216-Lab/
 │   ├── Dockerfile
 │   ├── poetry.lock
 │   └── pyproject.toml
+│
+│
+├── frontend/
+│   ├── src/
+│   │   ├── components/
+│   │   │   ├── BookForm.jsx
+│   │   │   └── BookList.jsx
+│   │   ├── App.jsx
+│   │   ├── index.css
+│   │   ├── main.jsx
+│   │   └── validation.js
+│   ├── tests/
+│   │   ├── e2e/
+│   │   │   └── books.spec.js
+│   │   ├── integration/
+│   │   │   └── App.test.jsx
+│   │   ├── unit/
+│   │   │   ├── BookForm.test.jsx
+│   │   │   └── validation.test.js
+│   │   └── setup.js
+│   ├── .gitignore
+│   ├── biome.json
+│   ├── index.html
+│   ├── package-lock.json
+│   ├── package.json
+│   ├── playwright.config.js
+│   └── vite.config.js
+│
 │
 ├── .env.example
 ├── .gitignore
@@ -86,8 +115,18 @@ make down
 ```
 > docker compose down
 
+6. Executar o frontend
+O frontend ainda não foi integrado ao backend, mas pode ser acessado instalando as dependências e iniciando o servidor:
+```bash
+make frontend-install
+make frontend-dev
+```
+> npm --prefix frontend ci && npm --prefix frontend run dev
+O frontend estará disponível em http://localhost:5173.
+
 ## :white_check_mark: Testes
-Após a instalação da aplicação, os testes poderão ser executados por meio do comando:
+## Backend
+Após a instalação da aplicação do backend, os testes poderão ser executados por meio do comando:
 ```bash
 make test
 ```
@@ -166,12 +205,64 @@ Os testes executados são:
 | 14 | **test_delete_book** | Verifica a exclusão de um livro pela rota `DELETE "/books/{book_id}"` e confirma que o livro não está mais disponível. |
 | 15 | **test_delete_book_not_found** | Verifica o retorno de erro ao tentar excluir um livro inexistente. |
 
-## :robot: Integração Contínua (CI)
-Esse projeto possui um pipeline, por meio do GitHub Actions, configurado para a automação de testes e verificações de código em eventos de `push` e `pull_request` que alterem arquivos do backend ou o próprio workflow.
+## Frontend
+Após a instalação da aplicação do frontend, os testes poderão ser executados por meio dos comandos:
+```bash
+make frontend-test
+make frontend-test-e2e
+```
+> npm --prefix frontend run test  
+npm --prefix frontend run test:e2e
 
-São executados:
-- Ruff para formatação e análise do código;
-- Pytest para execução dos testes automatizados.
+Caso seja a a primeira execução, é necessário instalar o navegador utilizado pelo Playwright antes de executar os testes e2e:
+```bash
+cd frontend
+npx playwright install chromium
+```
+
+### Testes Unitários
+Os testes unitários são divididos entre os testes de `BookForm` e de `validation`.
+
+Os testes executados de `BookForm` são:  
+| # | Teste - Descrição |
+|----|------------------|
+| 1 | **mostra erro e não chama onAdd com nome vazio** |
+| 2 | **mostra erro e não chama onAdd com autor vazio** |
+| 3 | **mostra erro e não chama onAdd com editora vazia** |
+
+Os testes executados de `validation` são:  
+| # | Teste - Descrição |
+|----|------------------|
+| 1 | **rejeita nome vazio ou só com espaços** |
+| 2 | **rejeita autor vazio ou só com espaços** |
+| 3 | **rejeita editora vazia ou só com espaços** |
+
+### Testes de Integração
+Os testes de integração validam o comportamento de `App`.
+
+Os testes executados são: 
+| # | Teste - Descrição |
+|----|------------------|
+| 1 | **cadastra um livro e o exibe na lista** |
+
+### Testes E2E
+Os testes end-to-end executados são:
+| # | Teste - Descrição |
+|----|------------------|
+| 1 | **cadastra um livro e o exibe na lista** |
+
+## :robot: Integração Contínua (CI)
+Esse projeto possui dois pipelines, por meio do GitHub Actions, configurado para a automação de testes e verificações de código em eventos de `push` e `pull_request` que alterem arquivos do backend ou do frontend.
+
+- **Backend (`ci-backend.yml`):**
+  - Ruff para análise e formatação do código Python;
+  - Pytest para execução dos testes automatizados.
+
+- **Frontend (`ci-frontend.yml`):**
+  - Biome para análise e formatação do código;
+  - Vitest para execução dos testes unitários e de integração;
+  - Vite para geração do build de produção;
+  - Playwright para execução dos testes end-to-end.
 
 ## :busts_in_silhouette: Colaboradores
 Virgínia Letícia Afonso - [VLAfonso](https://github.com/VLAfonso)
