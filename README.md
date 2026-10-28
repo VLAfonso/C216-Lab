@@ -6,15 +6,28 @@ Repositório destinado aos códigos desenvolvidos no laboratório da disciplina 
 C216-Lab/
 ├── .github
 │   ├── workflows
-│   │   └── ci-backend.yml
+│       ├── ci-backend.yml
+│       └── ci-frontend.yml
 │
 ├── backend/
+│   ├── alembic/
+│   │   ├── versions/
+│   │   └── env.py
+│   │
 │   ├── src/
 │   │   └── app/
 │   │       ├── main.py
 │   │       ├── api/
 │   │       │   └── routes/
 │   │       │       └── books.py
+│   │       ├── database/
+│   │       │   ├── base.py
+│   │       │   └── session.py
+│   │       ├── models/
+│   │       │   ├── __init__.py
+│   │       │   └── book.py
+│   │       ├── repositories/
+│   │       │   └── book.py
 │   │       ├── schemas/
 │   │       │   └── book.py
 │   │       └── services/
@@ -22,15 +35,45 @@ C216-Lab/
 │   │
 │   ├── tests/
 │   │   ├── integration/
+│   │       ├── conftest.py
 │   │   │   └── test_book_routes.py
 │   │   └── unit/
 │   │       ├── test_book_routes.py
 │   │       └── test_book_services.py
 │   │
 │   ├── .dockerignore
+│   ├── alembic.ini
 │   ├── Dockerfile
 │   ├── poetry.lock
 │   └── pyproject.toml
+│
+│
+├── frontend/
+│   ├── src/
+│   │   ├── components/
+│   │   │   ├── BookForm.jsx
+│   │   │   └── BookList.jsx
+│   │   ├── App.jsx
+│   │   ├── index.css
+│   │   ├── main.jsx
+│   │   └── validation.js
+│   ├── tests/
+│   │   ├── e2e/
+│   │   │   └── books.spec.js
+│   │   ├── integration/
+│   │   │   └── App.test.jsx
+│   │   ├── unit/
+│   │   │   ├── BookForm.test.jsx
+│   │   │   └── validation.test.js
+│   │   └── setup.js
+│   ├── .gitignore
+│   ├── biome.json
+│   ├── index.html
+│   ├── package-lock.json
+│   ├── package.json
+│   ├── playwright.config.js
+│   └── vite.config.js
+│
 │
 ├── .env.example
 ├── .gitignore
@@ -72,8 +115,18 @@ make down
 ```
 > docker compose down
 
+6. Executar o frontend
+O frontend ainda não foi integrado ao backend, mas pode ser acessado instalando as dependências e iniciando o servidor:
+```bash
+make frontend-install
+make frontend-dev
+```
+> npm --prefix frontend ci && npm --prefix frontend run dev
+O frontend estará disponível em http://localhost:5173.
+
 ## :white_check_mark: Testes
-Após a instalação da aplicação, os testes poderão ser executados por meio do comando:
+## Backend
+Após a instalação da aplicação do backend, os testes poderão ser executados por meio do comando:
 ```bash
 make test
 ```
@@ -92,14 +145,19 @@ Os testes executados de `services` são:
 |----|------|-----------|
 | 1 | **test_list_books** | Verifica a listagem dos livros disponíveis no serviço. |
 | 2 | **test_get_book_existing** | Verifica a busca de um livro existente pelo seu ID. |
-| 3 | **test_get_book_not_found** | Verifica a busca de um livro inexistente. |
+| 3 | **test_get_book_not_found** | Verifica o comportamento ao tentar a busca de um livro inexistente. |
 | 4 | **test_create_book** | Verifica a criação de um novo livro e sua inclusão na lista de livros. |
-| 5 | **test_update_book** | Verifica a atualização completa de um livro existente. |
-| 6 | **test_update_book_not_found** | Verifica o comportamento ao tentar atualizar um livro inexistente. |
-| 7 | **test_patch_book** | Verifica a atualização parcial de um livro existente. |
-| 8 | **test_patch_book_not_found** | Verifica o comportamento ao tentar atualizar parcialmente um livro inexistente. |
-| 9 | **test_delete_book** | Verifica a exclusão de um livro existente. |
-| 10 | **test_delete_book_not_found** | Verifica o comportamento ao tentar excluir um livro inexistente. |  
+| 5 | **test_create_book_duplicate_name** | Verifica o comportamento ao tentar a criação de um livro já existente. |
+| 6 | **test_update_book** | Verifica a atualização completa de um livro existente. |
+| 7 | **test_update_book_not_found** | Verifica o comportamento ao tentar a atualização completa um livro inexistente. |
+| 8 | **test_update_book_duplicate_name** | Verifica o comportamento ao tentar a atualização completa de um livro já existente. |
+| 9 | **test_patch_book_name** | Verifica a atualização parcial (apenas o nome) de um livro existente. |
+| 10 | **test_patch_book_author** | Verifica a atualização parcial (apenas o autor) de um livro existente. |
+| 11 | **test_patch_book_not_found** | Verifica o comportamento ao tentar a atualização parcial um livro inexistente. |
+| 12 | **test_patch_book_duplicate_name** | Verifica o comportamento ao tentar a atualização parcial de um livro já existente. |
+| 13 | **test_delete_book** | Verifica a exclusão de um livro existente. |
+| 14 | **test_delete_book_not_found** | Verifica o comportamento ao tentar a exclução um livro inexistente. |  
+> Utiliza mocks de `repository`
 
 Os testes executados de `routes` são:  
 
@@ -107,14 +165,17 @@ Os testes executados de `routes` são:
 |----|------|-----------|
 | 1 | **test_list_books** | Verifica a listagem de livros pela rota `GET "/"`. |
 | 2 | **test_get_book** | Verifica a busca de um livro existente pela rota `GET "/{book_id}"`. |
-| 3 | **test_get_book_not_found** | Verifica o comportamento ao buscar um livro inexistente. |
+| 3 | **test_get_book_not_found** | Verifica o comportamento ao tentar a busca por um livro inexistente. |
 | 4 | **test_create_book** | Verifica a criação de um novo livro pela rota `POST "/"`. |
-| 5 | **test_update_book** | Verifica a atualização completa de um livro pela rota `PUT "/{book_id}"`. |
-| 6 | **test_update_book_not_found** | Verifica o comportamento ao tentar atualizar um livro inexistente. |
-| 7 | **test_patch_book** | Verifica a atualização parcial de um livro pela rota `PATCH "/{book_id}"`. |
-| 8 | **test_patch_book_not_found** | Verifica o comportamento ao tentar atualizar parcialmente um livro inexistente. |
-| 9 | **test_delete_book** | Verifica a exclusão de um livro pela rota `DELETE "/{book_id}"`. |
-| 10 | **test_delete_book_not_found** | Verifica o comportamento ao tentar excluir um livro inexistente. |
+| 5 | **test_create_book_already_exists** | Verifica o comportamento ao tentar a criação de um livro já existente com o mesmo nome. |
+| 6 | **test_update_book** | Verifica a atualização completa de um livro pela rota `PUT "/{book_id}"`. |
+| 7 | **test_update_book_not_found** | Verifica o comportamento ao tentar a atualização completa de um livro inexistente. |
+| 8 | **test_update_book_already_exists** | Verifica o comportamento ao tentar a atualização completa de um livro existente com o mesmo nome. |
+| 9 | **test_patch_book** | Verifica a atualização parcial de um livro pela rota `PATCH "/{book_id}"`. |
+| 10 | **test_patch_book_not_found** | Verifica o comportamento ao tentar a atualização parcial de um livro inexistente. |
+| 11 | **test_patch_book_already_exists** | Verifica o comportamento ao tentar a atualização parcial de um livro existente com o mesmo nome. |
+| 12 | **test_delete_book** | Verifica a exclusão de um livro pela rota `DELETE "/{book_id}"`. |
+| 13 | **test_delete_book_not_found** | Verifica o comportamento ao tentar a exclusão de um livro inexistente. |
 > Utiliza mocks de `services`
 
 ### Testes de Integração
@@ -130,23 +191,78 @@ Os testes executados são:
 |----|------|-----------|
 | 1 | **test_list_books** | Verifica a listagem de livros pela rota `GET "/books/"`. |
 | 2 | **test_get_book_existing** | Verifica a busca de um livro existente pela rota `GET "/books/{book_id}"`. |
-| 3 | **test_get_book_not_found** | Verifica o retorno de erro ao buscar livros inexistentes, utilizando parametrização. |
+| 3 | **test_get_book_not_found** | Verifica o retorno de erro ao tentar a busca de livros inexistentes, utilizando parametrização. |
 | 4 | **test_create_book** | Verifica a criação de um novo livro pela rota `POST "/books/"`. |
-| 5 | **test_create_book_invalid_data** | Verifica o retorno de erro ao enviar dados inválidos na criação de um livro. |
-| 6 | **test_update_book** | Verifica a atualização completa de um livro pela rota `PUT "/books/{book_id}"`. |
-| 7 | **test_update_book_not_found** | Verifica o retorno de erro ao tentar atualizar um livro inexistente. |
-| 8 | **test_update_book_invalid_data** | Verifica o retorno de erro ao enviar dados inválidos na atualização de um livro. |
-| 9 | **test_patch_book** | Verifica a atualização parcial de um livro pela rota `PATCH "/books/{book_id}"`. |
-| 10 | **test_patch_book_not_found** | Verifica o retorno de erro ao tentar atualizar parcialmente um livro inexistente. |
-| 11 | **test_delete_book** | Verifica a exclusão de um livro pela rota `DELETE "/books/{book_id}"` e confirma que o livro não está mais disponível. |
-| 12 | **test_delete_book_not_found** | Verifica o retorno de erro ao tentar excluir um livro inexistente. |
+| 5 | **test_create_book_invalid_data** | Verifica o retorno de erro ao tentar enviar dados inválidos na criação de um livro. |
+| 6 | **test_create_book_already_exists** | Verifica o retorno de erro ao tentar a criação de um livro existente existente com o mesmo nome. |
+| 7 | **test_update_book** | Verifica a atualização completa de um livro pela rota `PUT "/books/{book_id}"`. |
+| 8 | **test_update_book_not_found** | Verifica o retorno de erro ao tentar a atualização um livro inexistente. |
+| 9 | **test_update_book_invalid_data** | Verifica o retorno de erro ao tentar enviar dados inválidos na atualização de um livro. |
+| 10 | **test_update_book_already_exists** | Verifica o retorno de erro ao tentar a atualização completa de um livro existente com o mesmo nome. |
+| 11 | **test_patch_book** | Verifica a atualização parcial de um livro pela rota `PATCH "/books/{book_id}"`. |
+| 12 | **test_patch_book_not_found** | Verifica o retorno de erro ao tentar a atualização parcial um livro inexistente. |
+| 13 | **test_patch_book_already_exists** | Verifica o retorno de erro ao tentar a atualização parcial um livro existente com o mesmo nome. |
+| 14 | **test_delete_book** | Verifica a exclusão de um livro pela rota `DELETE "/books/{book_id}"` e confirma que o livro não está mais disponível. |
+| 15 | **test_delete_book_not_found** | Verifica o retorno de erro ao tentar excluir um livro inexistente. |
+
+## Frontend
+Após a instalação da aplicação do frontend, os testes poderão ser executados por meio dos comandos:
+```bash
+make frontend-test
+make frontend-test-e2e
+```
+> npm --prefix frontend run test  
+npm --prefix frontend run test:e2e
+
+Caso seja a a primeira execução, é necessário instalar o navegador utilizado pelo Playwright antes de executar os testes e2e:
+```bash
+cd frontend
+npx playwright install chromium
+```
+
+### Testes Unitários
+Os testes unitários são divididos entre os testes de `BookForm` e de `validation`.
+
+Os testes executados de `BookForm` são:  
+| # | Teste - Descrição |
+|----|------------------|
+| 1 | **mostra erro e não chama onAdd com nome vazio** |
+| 2 | **mostra erro e não chama onAdd com autor vazio** |
+| 3 | **mostra erro e não chama onAdd com editora vazia** |
+
+Os testes executados de `validation` são:  
+| # | Teste - Descrição |
+|----|------------------|
+| 1 | **rejeita nome vazio ou só com espaços** |
+| 2 | **rejeita autor vazio ou só com espaços** |
+| 3 | **rejeita editora vazia ou só com espaços** |
+
+### Testes de Integração
+Os testes de integração validam o comportamento de `App`.
+
+Os testes executados são: 
+| # | Teste - Descrição |
+|----|------------------|
+| 1 | **cadastra um livro e o exibe na lista** |
+
+### Testes E2E
+Os testes end-to-end executados são:
+| # | Teste - Descrição |
+|----|------------------|
+| 1 | **cadastra um livro e o exibe na lista** |
 
 ## :robot: Integração Contínua (CI)
-Esse projeto possui um pipeline, por meio do GitHub Actions, configurado para a automação de testes e verificações de código em eventos de `push` e `pull_request` que alterem arquivos do backend ou o próprio workflow.
+Esse projeto possui dois pipelines, por meio do GitHub Actions, configurado para a automação de testes e verificações de código em eventos de `push` e `pull_request` que alterem arquivos do backend ou do frontend.
 
-São executados:
-- Ruff para formatação e análise do código;
-- Pytest para execução dos testes automatizados.
+- **Backend (`ci-backend.yml`):**
+  - Ruff para análise e formatação do código Python;
+  - Pytest para execução dos testes automatizados.
+
+- **Frontend (`ci-frontend.yml`):**
+  - Biome para análise e formatação do código;
+  - Vitest para execução dos testes unitários e de integração;
+  - Vite para geração do build de produção;
+  - Playwright para execução dos testes end-to-end.
 
 ## :busts_in_silhouette: Colaboradores
 Virgínia Letícia Afonso - [VLAfonso](https://github.com/VLAfonso)
