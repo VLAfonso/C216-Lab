@@ -12,7 +12,7 @@ class BookAlreadyExistsError(Exception):
 
 
 class BookService:
-    """Regras de negócio dos itens. Não conhece HTTP nem SQL."""
+    """Regras de negócio dos livros. Não conhece HTTP nem SQL."""
 
     def __init__(self, repository: BookRepository):
         self.repository = repository
