@@ -1,16 +1,23 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { BookForm } from "./components/BookForm";
 import { BookList } from "./components/BookList";
+import { createBook, listBooks } from "./services/books";
 
 export default function App() {
   const [books, setBooks] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
 
-  // Na Prática 7, esta função passará a chamar a API (POST /books).
-  function addBook({ name, author, publisher }) {
-    setBooks((current) => [
-      ...current,
-      { id: crypto.randomUUID(), name, author, publisher },
-    ]);
+  useEffect(() => {
+    listBooks()
+      .then(setBooks)
+      .catch((error) => setLoadError(error.message))
+      .finally(() => setLoading(false));
+  }, []);
+
+  async function addBook(values) {
+    const created = await createBook(values);
+    setBooks((current) => [...current, created]);
   }
 
   return (
@@ -23,7 +30,12 @@ export default function App() {
         <h2 id="books-heading" className="text-xl font-semibold">
           Livros cadastrados
         </h2>
-        <BookList books={books} />
+
+        {loading && <p>Carregando livros...</p>}
+
+        {loadError && <p role="alert">{loadError}</p>}
+
+        {!loading && !loadError && <BookList books={books} />}
       </section>
     </main>
   );

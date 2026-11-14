@@ -6,8 +6,10 @@ export function BookForm({ onAdd }) {
   const [author, setAuthor] = useState("");
   const [publisher, setPublisher] = useState("");
   const [errors, setErrors] = useState({});
+  const [submitError, setSubmitError] = useState("");
+  const [saving, setSaving] = useState(false);
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault();
 
     const result = validateBook({ name, author, publisher });
@@ -15,10 +17,20 @@ export function BookForm({ onAdd }) {
 
     if (Object.keys(result.errors).length > 0) return;
 
-    onAdd(result.values);
-    setName("");
-    setAuthor("");
-    setPublisher("");
+    setSaving(true);
+    setSubmitError("");
+
+    try {
+      await onAdd(result.values);
+
+      setName("");
+      setAuthor("");
+      setPublisher("");
+    } catch (error) {
+      setSubmitError(error.message);
+    } finally {
+      setSaving(false);
+    }
   }
 
   return (
@@ -96,10 +108,17 @@ export function BookForm({ onAdd }) {
 
       <button
         type="submit"
-        className="w-full rounded bg-blue-600 px-4 py-2 font-medium text-white hover:bg-blue-700 sm:w-auto"
+        disabled={saving}
+        className="w-full rounded bg-blue-600 px-4 py-2 font-medium text-white hover:bg-blue-700 disabled:opacity-50 sm:w-auto"
       >
-        Adicionar livro
+        {saving ? "Salvando..." : "Adicionar livro"}
       </button>
+
+      {submitError && (
+        <p role="alert" className="text-sm text-red-700">
+          {submitError}
+        </p>
+      )}
     </form>
   );
 }
