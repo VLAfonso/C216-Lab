@@ -1,10 +1,11 @@
-.PHONY: up down ps logs build up-build clean shell install test test-unit test-integration lint format run help db-upgrade db-downgrade db-current db-history db-migration db-psql frontend-install frontend-dev frontend-lint frontend-format frontend-check frontend-test frontend-test-e2e frontend-build check-all
+.PHONY: up down ps logs build up-build clean shell install test test-unit test-integration lint format run help db-upgrade db-downgrade db-current db-history db-migration db-psql frontend-install frontend-dev frontend-lint frontend-format frontend-check frontend-test frontend-test-e2e frontend-build e2e check-all
 
 BACKEND := cd backend
 POETRY := $(BACKEND) && poetry run
 PYTEST := $(POETRY) pytest
 COMPOSE := docker compose
 NPM := npm --prefix frontend
+E2E_COMPOSE = API_PORT=8001 FRONTEND_PORT=5174 VITE_API_URL=http://localhost:8001 CORS_ORIGINS=http://localhost:5174,http://127.0.0.1:5174 $(COMPOSE) -p lab-e2e
 
 up:
 	$(COMPOSE) up -d
@@ -92,9 +93,17 @@ frontend-test-e2e:
 	$(NPM) run test:e2e
 
 frontend-build:
-	$(NPM) build
+	$(NPM) run build
 
-check-all: lint test frontend-check frontend-test frontend-build frontend-test-e2e
+
+e2e:
+	@set -e; \
+	trap '$(E2E_COMPOSE) down -v' EXIT; \
+	$(E2E_COMPOSE) up --build -d; \
+	$(E2E_COMPOSE) run --rm api alembic upgrade head; \
+	E2E_BASE_URL=http://localhost:5174 $(NPM) run test:e2e
+
+check-all: lint test frontend-check frontend-test frontend-build e2e
 
 help:
 	@echo "Comandos disponiveis:"

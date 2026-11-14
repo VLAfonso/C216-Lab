@@ -35,7 +35,7 @@ C216-Lab/
 │   │
 │   ├── tests/
 │   │   ├── integration/
-│   │       ├── conftest.py
+│   │   │   ├── conftest.py
 │   │   │   └── test_book_routes.py
 │   │   └── unit/
 │   │       ├── test_book_routes.py
@@ -53,6 +53,8 @@ C216-Lab/
 │   │   ├── components/
 │   │   │   ├── BookForm.jsx
 │   │   │   └── BookList.jsx
+│   │   ├── services/
+│   │   │   └── books.js
 │   │   ├── App.jsx
 │   │   ├── index.css
 │   │   ├── main.jsx
@@ -64,10 +66,14 @@ C216-Lab/
 │   │   │   └── App.test.jsx
 │   │   ├── unit/
 │   │   │   ├── BookForm.test.jsx
+│   │   │   ├── BookList.test.jsx
+│   │   │   ├── books.test.js
 │   │   │   └── validation.test.js
 │   │   └── setup.js
 │   ├── .gitignore
+│   ├── .dockerignore
 │   ├── biome.json
+│   ├── Dockerfile
 │   ├── index.html
 │   ├── package-lock.json
 │   ├── package.json
@@ -106,23 +112,15 @@ make up-build
 ```
 > docker compose up --build
 
-4. Acessar API  
-A API estará disponível em http://localhost:8000.
+4. Acessar a aplicação
+A aplicação estará disponível em [http://localhost:5173](http://localhost:5173).    
+A API estará disponível em [http://localhost:8000](http://localhost:8000).
 
 5. Parar o ambiente
 ```bash
 make down
 ```
 > docker compose down
-
-6. Executar o frontend
-O frontend ainda não foi integrado ao backend, mas pode ser acessado instalando as dependências e iniciando o servidor:
-```bash
-make frontend-install
-make frontend-dev
-```
-> npm --prefix frontend ci && npm --prefix frontend run dev
-O frontend estará disponível em http://localhost:5173.
 
 ## :white_check_mark: Testes
 ## Backend
@@ -204,15 +202,16 @@ Os testes executados são:
 | 13 | **test_patch_book_already_exists** | Verifica o retorno de erro ao tentar a atualização parcial um livro existente com o mesmo nome. |
 | 14 | **test_delete_book** | Verifica a exclusão de um livro pela rota `DELETE "/books/{book_id}"` e confirma que o livro não está mais disponível. |
 | 15 | **test_delete_book_not_found** | Verifica o retorno de erro ao tentar excluir um livro inexistente. |
+| 16 | **test_cors_allowed_origin** | Verifica se uma requisição de uma origem permitida é aceita pelo CORS. |
+| 17 | **test_cors_disallowed_origin** | Verifica se uma requisição de uma origem não permitida é bloqueada pelo CORS. |
 
 ## Frontend
-Após a instalação da aplicação do frontend, os testes poderão ser executados por meio dos comandos:
+Após a instalação das dependências do frontend, os testes poderão ser executados por meio dos comandos:
 ```bash
 make frontend-test
-make frontend-test-e2e
+make e2e
 ```
 > npm --prefix frontend run test  
-npm --prefix frontend run test:e2e
 
 Caso seja a a primeira execução, é necessário instalar o navegador utilizado pelo Playwright antes de executar os testes e2e:
 ```bash
@@ -221,7 +220,7 @@ npx playwright install chromium
 ```
 
 ### Testes Unitários
-Os testes unitários são divididos entre os testes de `BookForm` e de `validation`.
+Os testes unitários são divididos entre os testes de `BookForm`, `BookList`, `books` e `validation`.
 
 Os testes executados de `BookForm` são:  
 | # | Teste - Descrição |
@@ -229,6 +228,20 @@ Os testes executados de `BookForm` são:
 | 1 | **mostra erro e não chama onAdd com nome vazio** |
 | 2 | **mostra erro e não chama onAdd com autor vazio** |
 | 3 | **mostra erro e não chama onAdd com editora vazia** |
+
+Os testes executados de `BookList` são:  
+| # | Teste - Descrição |
+|----|------------------|
+| 1 | **exibe uma mensagem quando não existem livros** |
+| 2 | **exibe os livros recebidos** |
+
+Os testes executados de `books` são:  
+| # | Teste - Descrição |
+|----|------------------|
+| 1 | **lista os livros da API** |
+| 2 | **cadastra um livro na API** |
+| 3 | **lança erro quando não consegue conectar à API** |
+| 4 | **exibe a mensagem enviada pela API quando ocorre um erro HTTP** |
 
 Os testes executados de `validation` são:  
 | # | Teste - Descrição |
@@ -243,7 +256,12 @@ Os testes de integração validam o comportamento de `App`.
 Os testes executados são: 
 | # | Teste - Descrição |
 |----|------------------|
-| 1 | **cadastra um livro e o exibe na lista** |
+| 1 | **exibe o estado de carregamento** |
+| 2 | **carrega e exibe os livros da API** |
+| 3 | **exibe uma mensagem quando a lista está vazia** |
+| 4 | **exibe erro quando não consegue carregar os livros** |
+| 5 | **cadastra um livro e atualiza a lista** |
+| 6 | **exibe erro ao cadastrar um livro duplicado** |
 
 ### Testes E2E
 Os testes end-to-end executados são:
