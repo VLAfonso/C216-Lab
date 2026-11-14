@@ -222,3 +222,30 @@ def test_delete_book_not_found(client):
 
     assert response.status_code == status.HTTP_404_NOT_FOUND
     assert response.json()["detail"] == "Livro não encontrado!"
+
+
+# Testes de CORS
+def test_cors_allowed_origin(client):
+    response = client.options(
+        "/books/",
+        headers={
+            "Origin": "http://localhost:5173",
+            "Access-Control-Request-Method": "GET",
+        },
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.headers["access-control-allow-origin"] == "http://localhost:5173"
+
+
+def test_cors_disallowed_origin(client):
+    response = client.options(
+        "/books/",
+        headers={
+            "Origin": "http://localhost:3000",
+            "Access-Control-Request-Method": "GET",
+        },
+    )
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert "access-control-allow-origin" not in response.headers
