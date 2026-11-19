@@ -9,6 +9,7 @@ COPY pyproject.toml poetry.lock ./
 COPY alembic.ini ./alembic.ini
 COPY alembic ./alembic
 COPY src ./src
+COPY scripts ./scripts
 
 RUN pip install --no-cache-dir poetry \
     && poetry config virtualenvs.create false \
