@@ -1,5 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { MemoryRouter } from "react-router-dom";
 import { afterEach, expect, it, vi } from "vitest";
 import App from "../../src/App";
 
@@ -22,6 +23,14 @@ function jsonResponse(data, status = 200) {
   };
 }
 
+function renderApp() {
+  return render(
+    <MemoryRouter initialEntries={["/brinquedos"]}>
+      <App />
+    </MemoryRouter>,
+  );
+}
+
 afterEach(() => {
   vi.unstubAllGlobals();
 });
@@ -32,7 +41,7 @@ it("exibe o estado de carregamento", () => {
     vi.fn(() => new Promise(() => {})),
   );
 
-  render(<App />);
+  renderApp();
 
   expect(screen.getByText("Carregando brinquedos...")).toBeInTheDocument();
 });
@@ -40,7 +49,7 @@ it("exibe o estado de carregamento", () => {
 it("carrega e exibe os brinquedos da API", async () => {
   vi.stubGlobal("fetch", vi.fn().mockResolvedValue(jsonResponse([toy])));
 
-  render(<App />);
+  renderApp();
 
   expect(await screen.findByText(toy.name)).toBeInTheDocument();
   expect(screen.getByText(`Descrição: ${toy.description}`)).toBeInTheDocument();
@@ -56,7 +65,7 @@ it("carrega e exibe os brinquedos da API", async () => {
 it("exibe uma mensagem quando a lista está vazia", async () => {
   vi.stubGlobal("fetch", vi.fn().mockResolvedValue(jsonResponse([])));
 
-  render(<App />);
+  renderApp();
 
   expect(
     await screen.findByText("Nenhum brinquedo cadastrado."),
@@ -66,7 +75,7 @@ it("exibe uma mensagem quando a lista está vazia", async () => {
 it("exibe erro quando não consegue carregar os brinquedos", async () => {
   vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new Error("Network Error")));
 
-  render(<App />);
+  renderApp();
 
   expect(
     await screen.findByText("Não foi possível conectar à API."),
@@ -79,11 +88,14 @@ it("cadastra um brinquedo e atualiza a lista", async () => {
   const fetchMock = vi
     .fn()
     .mockResolvedValueOnce(jsonResponse([]))
-    .mockResolvedValueOnce(jsonResponse(toy, 201));
+    .mockResolvedValueOnce(jsonResponse(toy, 201))
+    .mockResolvedValueOnce(jsonResponse([toy]));
 
   vi.stubGlobal("fetch", fetchMock);
 
-  render(<App />);
+  renderApp();
+
+  await user.click(screen.getByRole("link", { name: "Adicionar brinquedo" }));
 
   await user.type(screen.getByLabelText("Nome do brinquedo"), toy.name);
   await user.type(screen.getByLabelText("Descrição"), toy.description);
@@ -99,7 +111,7 @@ it("cadastra um brinquedo e atualiza a lista", async () => {
   expect(screen.getByText(`Descrição: ${toy.description}`)).toBeInTheDocument();
   expect(screen.getByText("Preço: R$ 49,90")).toBeInTheDocument();
 
-  expect(fetchMock).toHaveBeenCalledTimes(2);
+  expect(fetchMock).toHaveBeenCalledTimes(3);
   expect(fetchMock.mock.calls[1][1].method).toBe("POST");
 });
 
@@ -115,7 +127,9 @@ it("exibe erro ao cadastrar um brinquedo duplicado", async () => {
 
   vi.stubGlobal("fetch", fetchMock);
 
-  render(<App />);
+  renderApp();
+
+  await user.click(screen.getByRole("link", { name: "Adicionar brinquedo" }));
 
   await user.type(screen.getByLabelText("Nome do brinquedo"), toy.name);
   await user.type(screen.getByLabelText("Descrição"), toy.description);

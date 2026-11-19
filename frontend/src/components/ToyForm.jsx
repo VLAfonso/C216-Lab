@@ -1,14 +1,24 @@
 import { useState } from "react";
 import { validateToy } from "../validation";
 
-export function ToyForm({ onAdd }) {
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
-  const [price, setPrice] = useState("");
-  const [category, setCategory] = useState("");
-  const [brand, setBrand] = useState("");
-  const [ageRange, setAgeRange] = useState("");
-  const [quantity, setQuantity] = useState("");
+export function ToyForm({
+  initialValues = {},
+  onSubmit,
+  submitLabel = "Adicionar brinquedo",
+}) {
+  const [name, setName] = useState(initialValues.name ?? "");
+  const [description, setDescription] = useState(
+    initialValues.description ?? "",
+  );
+  const [price, setPrice] = useState(
+    initialValues.price != null ? String(initialValues.price) : "",
+  );
+  const [category, setCategory] = useState(initialValues.category ?? "");
+  const [brand, setBrand] = useState(initialValues.brand ?? "");
+  const [ageRange, setAgeRange] = useState(initialValues.age_range ?? "");
+  const [quantity, setQuantity] = useState(
+    initialValues.quantity != null ? String(initialValues.quantity) : "",
+  );
   const [errors, setErrors] = useState({});
   const [submitError, setSubmitError] = useState("");
   const [saving, setSaving] = useState(false);
@@ -34,15 +44,7 @@ export function ToyForm({ onAdd }) {
     setSubmitError("");
 
     try {
-      await onAdd(result.values);
-
-      setName("");
-      setDescription("");
-      setPrice("");
-      setCategory("");
-      setBrand("");
-      setAgeRange("");
-      setQuantity("");
+      await onSubmit(result.values);
     } catch (error) {
       setSubmitError(error.message);
     } finally {
@@ -221,7 +223,7 @@ export function ToyForm({ onAdd }) {
         disabled={saving}
         className="w-full rounded bg-blue-600 px-4 py-2 font-medium text-white hover:bg-blue-700 disabled:opacity-50 sm:w-auto"
       >
-        {saving ? "Salvando..." : "Adicionar brinquedo"}
+        {saving ? "Salvando..." : submitLabel}
       </button>
 
       {submitError && (
