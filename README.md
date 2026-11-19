@@ -11,6 +11,11 @@ O tema definido foi **Loja de Brinquedos**, sendo possível cadastrar **brinqued
 # :open_file_folder: Estrutura do Projeto
 ```text
 C216-Lab/
+├── .github
+│   ├── workflows
+│       ├── ci-backend.yml
+│       └── ci-frontend.yml
+│
 ├── backend/
 │   ├── alembic/
 │   │   ├── versions/
@@ -85,6 +90,7 @@ C216-Lab/
 │   └── vite.config.js
 │
 │
+├── .env.example
 ├── .gitignore
 ├── compose.yaml
 ├── LICENSE
