@@ -9,11 +9,63 @@ O objetivo do projeto é desenvolver uma aplicação web full-stack original e f
 O tema definido foi **Loja de Brinquedos**, sendo possível cadastrar **brinquedos** e contendo as informações: nome, descrição, preço, categoria, marca, faixa etária e quantidade. 
 
 # :open_file_folder: Estrutura do Projeto
+```text
+C216-Lab/
+├── .github
+│   └── workflows
+│       └── ci-backend.yml
+│
+├── backend/
+│   ├── alembic/
+│   │   ├── versions/
+│   │   └── env.py
+│   │
+│   ├── src/
+│   │   └── app/
+│   │       ├── main.py
+│   │       ├── api/
+│   │       │   └── routes/
+│   │       │       └── toys.py
+│   │       ├── database/
+│   │       │   ├── base.py
+│   │       │   └── session.py
+│   │       ├── models/
+│   │       │   ├── __init__.py
+│   │       │   └── toy.py
+│   │       ├── repositories/
+│   │       │   └── toy.py
+│   │       ├── schemas/
+│   │       │   └── toy.py
+│   │       └── services/
+│   │           └── toy.py
+│   │
+│   ├── tests/
+│   │   ├── integration/
+│   │   │   ├── conftest.py
+│   │   │   └── test_toy_routes.py
+│   │   └── unit/
+│   │       ├── test_toy_routes.py
+│   │       └── test_toy_services.py
+│   │
+│   ├── .dockerignore
+│   ├── alembic.ini
+│   ├── Dockerfile
+│   ├── poetry.lock
+│   └── pyproject.toml
+│
+│
+├── .gitignore
+├── compose.yaml
+├── LICENSE
+├── Makefile
+└── README.md
+```
 
 # :gear: Instalação e Execução
-<!-- Citar pré-requisitos, variáveis de ambiente, comandos de execução, migrações e instruções para acessar a aplicação -->
+<!-- Citar pré-requisitos, variáveis de ambiente, comandos de execução, migrações e instruções para acessar a aplicação. Não esquecer da seed com brinquedos iniciais -->
 
 # :puzzle_piece: Funcionalidades
+<!-- O nome do brinquedo deve ser único (regra de negócio) -->
 
 # :hammer_and_wrench: Tecnologias
 
