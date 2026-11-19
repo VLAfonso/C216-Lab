@@ -11,10 +11,6 @@ O tema definido foi **Loja de Brinquedos**, sendo possível cadastrar **brinqued
 # :open_file_folder: Estrutura do Projeto
 ```text
 C216-Lab/
-├── .github
-│   └── workflows
-│       └── ci-backend.yml
-│
 ├── backend/
 │   ├── alembic/
 │   │   ├── versions/
@@ -52,6 +48,41 @@ C216-Lab/
 │   ├── Dockerfile
 │   ├── poetry.lock
 │   └── pyproject.toml
+│
+│
+├── frontend/
+│   ├── src/
+│   │   ├── components/
+│   │   │   ├── ToyForm.jsx
+│   │   │   └── ToyList.jsx
+│   │   ├── services/
+│   │   │   └── toys.js
+│   │   ├── App.jsx
+│   │   ├── index.css
+│   │   ├── main.jsx
+│   │   └── validation.js
+│   │
+│   ├── tests/
+│   │   ├── e2e/
+│   │   │   └── toys.spec.js
+│   │   ├── integration/
+│   │   │   └── App.test.jsx
+│   │   ├── unit/
+│   │   │   ├── ToyForm.test.jsx
+│   │   │   ├── ToyList.test.jsx
+│   │   │   ├── toys.test.js
+│   │   │   └── validation.test.js
+│   │   └── setup.js
+│   │
+│   ├── .dockerignore
+│   ├── .gitignore
+│   ├── biome.json
+│   ├── Dockerfile
+│   ├── index.html
+│   ├── package-lock.json
+│   ├── package.json
+│   ├── playwright.config.js
+│   └── vite.config.js
 │
 │
 ├── .gitignore
