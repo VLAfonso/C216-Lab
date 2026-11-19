@@ -7,6 +7,9 @@ export function ToyListPage() {
   const [toys, setToys] = useState([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState("");
+  const [search, setSearch] = useState("");
+  const [category, setCategory] = useState("");
+  const [sort, setSort] = useState("name");
 
   useEffect(() => {
     listToys()
@@ -14,6 +17,33 @@ export function ToyListPage() {
       .catch((error) => setLoadError(error.message))
       .finally(() => setLoading(false));
   }, []);
+
+  const categories = [
+    ...new Set(toys.map((toy) => toy.category).filter(Boolean)),
+  ].sort((a, b) => a.localeCompare(b, "pt-BR"));
+
+  const filteredToys = toys
+    .filter((toy) => {
+      const searchValue = search.trim().toLocaleLowerCase("pt-BR");
+
+      const matchesSearch = [toy.name, toy.brand, toy.category].some((value) =>
+        value?.toLocaleLowerCase("pt-BR").includes(searchValue),
+      );
+
+      const matchesCategory = !category || toy.category === category;
+
+      return matchesSearch && matchesCategory;
+    })
+    .sort((a, b) => {
+      switch (sort) {
+        case "price":
+          return Number(a.price) - Number(b.price);
+        case "quantity":
+          return a.quantity - b.quantity;
+        default:
+          return a.name.localeCompare(b.name, "pt-BR");
+      }
+    });
 
   return (
     <section className="space-y-6">
@@ -28,11 +58,62 @@ export function ToyListPage() {
         </Link>
       </div>
 
+      <div className="grid gap-3 sm:grid-cols-3">
+        <div className="space-y-1 sm:col-span-3">
+          <label htmlFor="toy-search" className="text-sm font-medium">
+            Pesquisar
+          </label>
+          <input
+            id="toy-search"
+            type="search"
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            placeholder="Nome, marca ou categoria..."
+            className="w-full rounded border border-slate-300 p-2"
+          />
+        </div>
+
+        <div className="space-y-1">
+          <label htmlFor="toy-category-filter" className="text-sm font-medium">
+            Categoria
+          </label>
+          <select
+            id="toy-category-filter"
+            value={category}
+            onChange={(event) => setCategory(event.target.value)}
+            className="w-full rounded border border-slate-300 p-2"
+          >
+            <option value="">Todas as categorias</option>
+            {categories.map((item) => (
+              <option key={item} value={item}>
+                {item}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="space-y-1">
+          <label htmlFor="toy-sort" className="text-sm font-medium">
+            Ordenar por
+          </label>
+          <select
+            id="toy-sort"
+            value={sort}
+            onChange={(event) => setSort(event.target.value)}
+            className="w-full rounded border border-slate-300 p-2"
+          >
+            <option value="name">Nome (A-Z)</option>
+            <option value="price">Menor preço</option>
+            <option value="quantity">Menor quantidade</option>
+          </select>
+        </div>
+      </div>
+
       {loading && <p>Carregando brinquedos...</p>}
 
       {loadError && <p role="alert">{loadError}</p>}
 
-      {!loading && !loadError && <ToyList toys={toys} />}
+      {!loading && !loadError && <ToyList toys={filteredToys} />}
     </section>
   );
 }

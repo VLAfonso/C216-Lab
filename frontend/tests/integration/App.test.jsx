@@ -51,7 +51,9 @@ it("carrega e exibe os brinquedos da API", async () => {
 
   renderApp();
 
-  expect(await screen.findByText(toy.name)).toBeInTheDocument();
+  expect(
+    await screen.findByText(toy.name, { selector: "p.font-medium" }),
+  ).toBeInTheDocument();
   expect(screen.getByText(`Descrição: ${toy.description}`)).toBeInTheDocument();
   expect(screen.getByText("Preço: R$ 49,90")).toBeInTheDocument();
   expect(screen.getByText(`Categoria: ${toy.category}`)).toBeInTheDocument();
@@ -107,7 +109,9 @@ it("cadastra um brinquedo e atualiza a lista", async () => {
 
   await user.click(screen.getByRole("button", { name: "Adicionar brinquedo" }));
 
-  expect(await screen.findByText(toy.name)).toBeInTheDocument();
+  expect(
+    await screen.findByText(toy.name, { selector: "p.font-medium" }),
+  ).toBeInTheDocument();
   expect(screen.getByText(`Descrição: ${toy.description}`)).toBeInTheDocument();
   expect(screen.getByText("Preço: R$ 49,90")).toBeInTheDocument();
 
