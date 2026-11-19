@@ -2,6 +2,7 @@ from decimal import Decimal
 
 from pydantic import BaseModel, ConfigDict, Field
 
+
 class ToyCreate(BaseModel):
     # Nome, preço e quantidade são obrigatórios
     name: str = Field(min_length=1, max_length=255)
@@ -12,6 +13,7 @@ class ToyCreate(BaseModel):
     age_range: str | None = Field(default=None, max_length=50)
     quantity: int = Field(ge=0, le=999999)
 
+
 class ToyUpdate(BaseModel):
     name: str | None = Field(default=None, min_length=1, max_length=255)
     description: str | None = Field(default=None, max_length=1000)
@@ -20,6 +22,7 @@ class ToyUpdate(BaseModel):
     brand: str | None = Field(default=None, max_length=255)
     age_range: str | None = Field(default=None, max_length=50)
     quantity: int | None = Field(default=None, ge=0, le=999999)
+
 
 class ToyRead(BaseModel):
     model_config = ConfigDict(from_attributes=True)
