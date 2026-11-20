@@ -218,8 +218,16 @@ Os testes verificam:
 - Exibição dos estados de carregamento e lista vazia.
 - Carregamento e exibição dos brinquedos.
 - Tratamento de erros na comunicação com a API.
-- Cadastro de brinquedos e atualização da listagem.
-- Tratamento de erros durante o cadastro.
+- Cadastro e edição de brinquedos.
+- Tratamento de erros durante o cadastro e a edição.
+- Exclusão de brinquedos e tratamento de erros.
+- Exibição das mensagens de sucesso e erro.
+- Busca por nome, marca e categoria.
+- Busca sem diferenciar letras maiúsculas e minúsculas.
+- Exibição de mensagem quando nenhum brinquedo é encontrado.
+- Filtragem por categoria.
+- Ordenação por nome, preço e quantidade.
+- Combinação de busca e filtros.
 
 ### **Testes E2E**
 Os testes ponta a ponta verificam os principais fluxos da aplicação, simulando a interação do usuário com o sistema.  
@@ -228,9 +236,25 @@ Podem ser executados por meio do comando:
 make e2e
 ```
 Os cenários implementados verificam:
-- Cadastro de um brinquedo e sua persistência após recarregar a página.
-- Edição de um brinquedo e persistência das alterações após recarregar a página.
-- Exclusão de um brinquedo e confirmação de que ele não aparece mais na listagem.
+- Cadastro de um brinquedo, exibição da mensagem de sucesso e persistência após recarregar a página.
+- Edição de um brinquedo, exibição da mensagem de sucesso e persistência das alterações após recarregar a página.
+- Exclusão de um brinquedo, exibição da mensagem de sucesso e confirmação de que ele não aparece mais na listagem.
+
+## Verificação Geral
+O projeto possui um comando para executar as principais verificações de qualidade e funcionamento de forma integrada:
+```bash
+make check-all
+```
+
+Ele executa, em sequência:
+- Ruff: verifica a qualidade do código Python.
+- Pytest: executa todos os testes do backend.
+- Biome: verifica a qualidade e a formatação do código JavaScript.
+- Vitest: executa os testes unitários e de integração do frontend.
+- Build: verifica a geração do build de produção do frontend.
+- Playwright: executa os testes ponta a ponta (E2E) em um ambiente isolado.
+
+O comando é interrompido caso alguma etapa apresente falha, permitindo identificar problemas antes de integrar as alterações ao projeto.
 
 # :robot: Integração Contínua (CI)
 O projeto utiliza GitHub Actions para automatizar as verificações de qualidade, os testes e a construção da aplicação.  
