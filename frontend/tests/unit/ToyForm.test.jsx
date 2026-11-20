@@ -3,10 +3,10 @@ import userEvent from "@testing-library/user-event";
 import { expect, it, vi } from "vitest";
 import { ToyForm } from "../../src/components/ToyForm";
 
-it("mostra erro e não chama onAdd com nome vazio", async () => {
+it("mostra erro e não chama onSubmit com nome vazio", async () => {
   const user = userEvent.setup();
-  const onAdd = vi.fn();
-  render(<ToyForm onAdd={onAdd} />);
+  const onSubmit = vi.fn();
+  render(<ToyForm onSubmit={onSubmit} />);
 
   await user.type(screen.getByLabelText("Preço"), "49.90");
   await user.type(screen.getByLabelText("Quantidade"), "10");
@@ -16,13 +16,13 @@ it("mostra erro e não chama onAdd com nome vazio", async () => {
   expect(screen.getByRole("alert")).toHaveTextContent(
     "O nome do brinquedo é obrigatório.",
   );
-  expect(onAdd).not.toHaveBeenCalled();
+  expect(onSubmit).not.toHaveBeenCalled();
 });
 
-it("mostra erro e não chama onAdd com preço vazio", async () => {
+it("mostra erro e não chama onSubmit com preço vazio", async () => {
   const user = userEvent.setup();
-  const onAdd = vi.fn();
-  render(<ToyForm onAdd={onAdd} />);
+  const onSubmit = vi.fn();
+  render(<ToyForm onSubmit={onSubmit} />);
 
   await user.type(
     screen.getByLabelText("Nome do brinquedo"),
@@ -33,13 +33,13 @@ it("mostra erro e não chama onAdd com preço vazio", async () => {
   await user.click(screen.getByRole("button", { name: "Adicionar brinquedo" }));
 
   expect(screen.getByRole("alert")).toHaveTextContent("O preço é obrigatório.");
-  expect(onAdd).not.toHaveBeenCalled();
+  expect(onSubmit).not.toHaveBeenCalled();
 });
 
-it("mostra erro e não chama onAdd com quantidade vazia", async () => {
+it("mostra erro e não chama onSubmit com quantidade vazia", async () => {
   const user = userEvent.setup();
-  const onAdd = vi.fn();
-  render(<ToyForm onAdd={onAdd} />);
+  const onSubmit = vi.fn();
+  render(<ToyForm onSubmit={onSubmit} />);
 
   await user.type(
     screen.getByLabelText("Nome do brinquedo"),
@@ -52,5 +52,5 @@ it("mostra erro e não chama onAdd com quantidade vazia", async () => {
   expect(screen.getByRole("alert")).toHaveTextContent(
     "A quantidade é obrigatória.",
   );
-  expect(onAdd).not.toHaveBeenCalled();
+  expect(onSubmit).not.toHaveBeenCalled();
 });
