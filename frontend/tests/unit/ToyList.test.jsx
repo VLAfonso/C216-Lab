@@ -6,7 +6,7 @@ import { ToyList } from "../../src/components/ToyList";
 it("exibe uma mensagem quando não existem brinquedos", () => {
   render(
     <MemoryRouter>
-      <ToyList toys={[]} />
+      <ToyList toys={[]} emptyMessage="Nenhum brinquedo cadastrado." />
     </MemoryRouter>,
   );
 
@@ -29,7 +29,7 @@ it("exibe os brinquedos recebidos", () => {
 
   render(
     <MemoryRouter>
-      <ToyList toys={toys} />
+      <ToyList toys={toys} emptyMessage="Nenhum brinquedo cadastrado." />
     </MemoryRouter>,
   );
 
