@@ -52,7 +52,7 @@ it("carrega e exibe os brinquedos da API", async () => {
   renderApp();
 
   expect(
-    await screen.findByText(toy.name, { selector: "p.font-medium" }),
+    await screen.findByText(toy.name, { selector: "p.font-semibold" }),
   ).toBeInTheDocument();
   expect(screen.getByText(`Descrição: ${toy.description}`)).toBeInTheDocument();
   expect(screen.getByText("Preço: R$ 49,90")).toBeInTheDocument();
@@ -110,7 +110,7 @@ it("cadastra um brinquedo e atualiza a lista", async () => {
   await user.click(screen.getByRole("button", { name: "Adicionar brinquedo" }));
 
   expect(
-    await screen.findByText(toy.name, { selector: "p.font-medium" }),
+    await screen.findByText(toy.name, { selector: "p.font-semibold" }),
   ).toBeInTheDocument();
   expect(screen.getByText(`Descrição: ${toy.description}`)).toBeInTheDocument();
   expect(screen.getByText("Preço: R$ 49,90")).toBeInTheDocument();
@@ -206,7 +206,7 @@ it("atualiza um brinquedo e retorna à listagem", async () => {
 
   expect(
     await screen.findByText(updatedToy.name, {
-      selector: "p.font-medium",
+      selector: "p.font-semibold",
     }),
   ).toBeInTheDocument();
 
@@ -234,13 +234,10 @@ it("exibe erro ao tentar editar um brinquedo inexistente", async () => {
   expect(screen.queryByLabelText("Nome do brinquedo")).not.toBeInTheDocument();
 });
 
-
 it("não exclui um brinquedo quando a confirmação é cancelada", async () => {
   const user = userEvent.setup();
 
-  const fetchMock = vi
-    .fn()
-    .mockResolvedValueOnce(jsonResponse([toy]));
+  const fetchMock = vi.fn().mockResolvedValueOnce(jsonResponse([toy]));
 
   vi.stubGlobal("fetch", fetchMock);
   vi.spyOn(window, "confirm").mockReturnValue(false);
@@ -248,7 +245,7 @@ it("não exclui um brinquedo quando a confirmação é cancelada", async () => {
   renderApp();
 
   expect(
-    await screen.findByText(toy.name, { selector: "p.font-medium" }),
+    await screen.findByText(toy.name, { selector: "p.font-semibold" }),
   ).toBeInTheDocument();
 
   await user.click(screen.getByRole("button", { name: "Excluir" }));
@@ -259,7 +256,7 @@ it("não exclui um brinquedo quando a confirmação é cancelada", async () => {
 
   expect(fetchMock).toHaveBeenCalledTimes(1);
   expect(
-    screen.getByText(toy.name, { selector: "p.font-medium" }),
+    screen.getByText(toy.name, { selector: "p.font-semibold" }),
   ).toBeInTheDocument();
 });
 
@@ -277,7 +274,7 @@ it("exclui um brinquedo e atualiza a lista", async () => {
   renderApp();
 
   expect(
-    await screen.findByText(toy.name, { selector: "p.font-medium" }),
+    await screen.findByText(toy.name, { selector: "p.font-semibold" }),
   ).toBeInTheDocument();
 
   await user.click(screen.getByRole("button", { name: "Excluir" }));
@@ -287,9 +284,7 @@ it("exclui um brinquedo e atualiza a lista", async () => {
   ).toBeInTheDocument();
 
   expect(fetchMock).toHaveBeenCalledTimes(2);
-  expect(fetchMock.mock.calls[1][0]).toBe(
-    "http://localhost:8000/toys/1",
-  );
+  expect(fetchMock.mock.calls[1][0]).toBe("http://localhost:8000/toys/1");
   expect(fetchMock.mock.calls[1][1].method).toBe("DELETE");
 });
 
@@ -309,7 +304,7 @@ it("exibe erro quando não consegue excluir um brinquedo", async () => {
   renderApp();
 
   expect(
-    await screen.findByText(toy.name, { selector: "p.font-medium" }),
+    await screen.findByText(toy.name, { selector: "p.font-semibold" }),
   ).toBeInTheDocument();
 
   await user.click(screen.getByRole("button", { name: "Excluir" }));
@@ -319,7 +314,7 @@ it("exibe erro quando não consegue excluir um brinquedo", async () => {
   ).toBeInTheDocument();
 
   expect(
-    screen.getByText(toy.name, { selector: "p.font-medium" }),
+    screen.getByText(toy.name, { selector: "p.font-semibold" }),
   ).toBeInTheDocument();
 
   expect(fetchMock).toHaveBeenCalledTimes(2);
