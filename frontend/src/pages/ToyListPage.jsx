@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { ToyList } from "../components/ToyList";
-import { listToys } from "../services/toys";
+import { deleteToy, listToys } from "../services/toys";
 
 export function ToyListPage() {
   const [toys, setToys] = useState([]);
@@ -10,6 +10,7 @@ export function ToyListPage() {
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("");
   const [sort, setSort] = useState("name");
+  const [deleteError, setDeleteError] = useState("");
 
   useEffect(() => {
     listToys()
@@ -44,6 +45,22 @@ export function ToyListPage() {
           return a.name.localeCompare(b.name, "pt-BR");
       }
     });
+
+  async function handleDelete(toy) {
+    const confirmed = window.confirm(`Deseja realmente excluir "${toy.name}"?`);
+
+    if (!confirmed) return;
+
+    try {
+      await deleteToy(toy.id);
+      setToys((currentToys) =>
+        currentToys.filter((item) => item.id !== toy.id),
+      );
+      setDeleteError("");
+    } catch (error) {
+      setDeleteError(error.message);
+    }
+  }
 
   return (
     <section className="space-y-6">
@@ -113,7 +130,11 @@ export function ToyListPage() {
 
       {loadError && <p role="alert">{loadError}</p>}
 
-      {!loading && !loadError && <ToyList toys={filteredToys} />}
+      {deleteError && <p role="alert">{deleteError}</p>}
+
+      {!loading && !loadError && (
+        <ToyList toys={filteredToys} onDelete={handleDelete} />
+      )}
     </section>
   );
 }

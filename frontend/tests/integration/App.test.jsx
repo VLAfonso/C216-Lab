@@ -23,9 +23,9 @@ function jsonResponse(data, status = 200) {
   };
 }
 
-function renderApp() {
+function renderApp(initialEntry = "/brinquedos") {
   return render(
-    <MemoryRouter initialEntries={["/brinquedos"]}>
+    <MemoryRouter initialEntries={[initialEntry]}>
       <App />
     </MemoryRouter>,
   );
@@ -156,4 +156,171 @@ it("exibe erro ao cadastrar um brinquedo duplicado", async () => {
   expect(screen.getByLabelText("Marca")).toHaveValue(toy.brand);
   expect(screen.getByLabelText("Faixa etária")).toHaveValue(toy.age_range);
   expect(screen.getByLabelText("Quantidade")).toHaveValue(10);
+});
+
+it("carrega os dados do brinquedo no formulário de edição", async () => {
+  const fetchMock = vi.fn().mockResolvedValueOnce(jsonResponse(toy));
+
+  vi.stubGlobal("fetch", fetchMock);
+
+  renderApp("/brinquedos/1/editar");
+
+  expect(await screen.findByLabelText("Nome do brinquedo")).toHaveValue(
+    toy.name,
+  );
+
+  expect(screen.getByLabelText("Descrição")).toHaveValue(toy.description);
+  expect(screen.getByLabelText("Preço")).toHaveValue(49.9);
+  expect(screen.getByLabelText("Categoria")).toHaveValue(toy.category);
+  expect(screen.getByLabelText("Marca")).toHaveValue(toy.brand);
+  expect(screen.getByLabelText("Faixa etária")).toHaveValue(toy.age_range);
+  expect(screen.getByLabelText("Quantidade")).toHaveValue(10);
+
+  expect(fetchMock).toHaveBeenCalledWith(
+    "http://localhost:8000/toys/1",
+    undefined,
+  );
+});
+
+it("atualiza um brinquedo e retorna à listagem", async () => {
+  const user = userEvent.setup();
+
+  const updatedToy = { ...toy, name: "Blocos Atualizados" };
+
+  const fetchMock = vi
+    .fn()
+    .mockResolvedValueOnce(jsonResponse(toy))
+    .mockResolvedValueOnce(jsonResponse(updatedToy))
+    .mockResolvedValueOnce(jsonResponse([updatedToy]));
+
+  vi.stubGlobal("fetch", fetchMock);
+
+  renderApp("/brinquedos/1/editar");
+
+  const nameInput = await screen.findByLabelText("Nome do brinquedo");
+
+  await user.clear(nameInput);
+  await user.type(nameInput, updatedToy.name);
+
+  await user.click(screen.getByRole("button", { name: "Salvar alterações" }));
+
+  expect(
+    await screen.findByText(updatedToy.name, {
+      selector: "p.font-medium",
+    }),
+  ).toBeInTheDocument();
+
+  expect(fetchMock).toHaveBeenCalledTimes(3);
+  expect(fetchMock.mock.calls[1][0]).toBe("http://localhost:8000/toys/1");
+  expect(fetchMock.mock.calls[1][1].method).toBe("PUT");
+});
+
+it("exibe erro ao tentar editar um brinquedo inexistente", async () => {
+  vi.stubGlobal(
+    "fetch",
+    vi
+      .fn()
+      .mockResolvedValue(
+        jsonResponse({ detail: "Brinquedo não encontrado!" }, 404),
+      ),
+  );
+
+  renderApp("/brinquedos/9999/editar");
+
+  expect(
+    await screen.findByText("Brinquedo não encontrado!"),
+  ).toBeInTheDocument();
+
+  expect(screen.queryByLabelText("Nome do brinquedo")).not.toBeInTheDocument();
+});
+
+
+it("não exclui um brinquedo quando a confirmação é cancelada", async () => {
+  const user = userEvent.setup();
+
+  const fetchMock = vi
+    .fn()
+    .mockResolvedValueOnce(jsonResponse([toy]));
+
+  vi.stubGlobal("fetch", fetchMock);
+  vi.spyOn(window, "confirm").mockReturnValue(false);
+
+  renderApp();
+
+  expect(
+    await screen.findByText(toy.name, { selector: "p.font-medium" }),
+  ).toBeInTheDocument();
+
+  await user.click(screen.getByRole("button", { name: "Excluir" }));
+
+  expect(window.confirm).toHaveBeenCalledWith(
+    `Deseja realmente excluir "${toy.name}"?`,
+  );
+
+  expect(fetchMock).toHaveBeenCalledTimes(1);
+  expect(
+    screen.getByText(toy.name, { selector: "p.font-medium" }),
+  ).toBeInTheDocument();
+});
+
+it("exclui um brinquedo e atualiza a lista", async () => {
+  const user = userEvent.setup();
+
+  const fetchMock = vi
+    .fn()
+    .mockResolvedValueOnce(jsonResponse([toy]))
+    .mockResolvedValueOnce(jsonResponse(null, 204));
+
+  vi.stubGlobal("fetch", fetchMock);
+  vi.spyOn(window, "confirm").mockReturnValue(true);
+
+  renderApp();
+
+  expect(
+    await screen.findByText(toy.name, { selector: "p.font-medium" }),
+  ).toBeInTheDocument();
+
+  await user.click(screen.getByRole("button", { name: "Excluir" }));
+
+  expect(
+    await screen.findByText("Nenhum brinquedo cadastrado."),
+  ).toBeInTheDocument();
+
+  expect(fetchMock).toHaveBeenCalledTimes(2);
+  expect(fetchMock.mock.calls[1][0]).toBe(
+    "http://localhost:8000/toys/1",
+  );
+  expect(fetchMock.mock.calls[1][1].method).toBe("DELETE");
+});
+
+it("exibe erro quando não consegue excluir um brinquedo", async () => {
+  const user = userEvent.setup();
+
+  const fetchMock = vi
+    .fn()
+    .mockResolvedValueOnce(jsonResponse([toy]))
+    .mockResolvedValueOnce(
+      jsonResponse({ detail: "Erro ao excluir o brinquedo." }, 500),
+    );
+
+  vi.stubGlobal("fetch", fetchMock);
+  vi.spyOn(window, "confirm").mockReturnValue(true);
+
+  renderApp();
+
+  expect(
+    await screen.findByText(toy.name, { selector: "p.font-medium" }),
+  ).toBeInTheDocument();
+
+  await user.click(screen.getByRole("button", { name: "Excluir" }));
+
+  expect(
+    await screen.findByText("Erro ao excluir o brinquedo."),
+  ).toBeInTheDocument();
+
+  expect(
+    screen.getByText(toy.name, { selector: "p.font-medium" }),
+  ).toBeInTheDocument();
+
+  expect(fetchMock).toHaveBeenCalledTimes(2);
 });

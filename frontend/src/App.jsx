@@ -11,6 +11,7 @@ export default function App() {
         <Route path="/" element={<Navigate to="/brinquedos" replace />} />
         <Route path="/brinquedos" element={<ToyListPage />} />
         <Route path="/brinquedos/novo" element={<ToyFormPage />} />
+        <Route path="/brinquedos/:id/editar" element={<ToyFormPage />} />
       </Routes>
     </main>
   );

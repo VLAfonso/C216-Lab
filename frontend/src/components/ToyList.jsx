@@ -1,4 +1,6 @@
-export function ToyList({ toys }) {
+import { Link } from "react-router-dom";
+
+export function ToyList({ toys, onDelete }) {
   if (toys.length === 0) {
     return <p className="text-slate-600">Nenhum brinquedo cadastrado.</p>;
   }
@@ -27,6 +29,22 @@ export function ToyList({ toys }) {
             Faixa etária: {toy.age_range || "Não informada"}
           </p>
           <p className="text-sm text-slate-600">Quantidade: {toy.quantity}</p>
+          <div className="mt-3 flex gap-2">
+            <Link
+              to={`/brinquedos/${toy.id}/editar`}
+              className="rounded bg-blue-600 px-3 py-1 text-sm text-white hover:bg-blue-700"
+            >
+              Editar
+            </Link>
+
+            <button
+              type="button"
+              onClick={() => onDelete(toy)}
+              className="rounded bg-red-600 px-3 py-1 text-sm text-white hover:bg-red-700"
+            >
+              Excluir
+            </button>
+          </div>
         </li>
       ))}
     </ul>

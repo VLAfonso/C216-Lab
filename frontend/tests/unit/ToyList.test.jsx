@@ -1,9 +1,14 @@
 import { render, screen } from "@testing-library/react";
+import { MemoryRouter } from "react-router-dom";
 import { expect, it } from "vitest";
 import { ToyList } from "../../src/components/ToyList";
 
 it("exibe uma mensagem quando não existem brinquedos", () => {
-  render(<ToyList toys={[]} />);
+  render(
+    <MemoryRouter>
+      <ToyList toys={[]} />
+    </MemoryRouter>,
+  );
 
   expect(screen.getByText("Nenhum brinquedo cadastrado.")).toBeInTheDocument();
 });
@@ -22,7 +27,11 @@ it("exibe os brinquedos recebidos", () => {
     },
   ];
 
-  render(<ToyList toys={toys} />);
+  render(
+    <MemoryRouter>
+      <ToyList toys={toys} />
+    </MemoryRouter>,
+  );
 
   expect(screen.getByText("Blocos de Montar")).toBeInTheDocument();
   expect(

@@ -15,6 +15,10 @@ async function request(url, options, fallbackMessage) {
     throw new Error(data?.detail || fallbackMessage);
   }
 
+  if (response.status === 204) {
+    return null;
+  }
+
   return response.json();
 }
 
@@ -47,5 +51,33 @@ export function createToy({
       }),
     },
     "Erro ao cadastrar o brinquedo.",
+  );
+}
+
+export function getToy(id) {
+  return request(
+    `${TOYS_URL}${id}`,
+    undefined,
+    "Erro ao carregar o brinquedo.",
+  );
+}
+
+export function updateToy(id, values) {
+  return request(
+    `${TOYS_URL}${id}`,
+    {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(values),
+    },
+    "Erro ao atualizar o brinquedo.",
+  );
+}
+
+export function deleteToy(id) {
+  return request(
+    `${TOYS_URL}${id}`,
+    { method: "DELETE" },
+    "Erro ao excluir o brinquedo.",
   );
 }
