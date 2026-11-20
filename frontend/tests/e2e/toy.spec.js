@@ -85,7 +85,6 @@ test("edita um brinquedo e as alterações persistem após recarregar a página"
   ).toBeVisible();
 });
 
-
 test("exclui um brinquedo e ele não aparece após recarregar a página", async ({
   page,
 }) => {
