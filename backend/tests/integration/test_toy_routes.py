@@ -91,6 +91,14 @@ def test_create_toy_invalid_data(client):
 
     assert response.status_code == status.HTTP_422_UNPROCESSABLE_CONTENT
 
+def test_create_toy_name_only_spaces(client):
+    toy_data = TOY_DATA.copy()
+    toy_data["name"] = "   "
+
+    response = client.post("/toys/", json=toy_data)
+
+    assert response.status_code == status.HTTP_422_UNPROCESSABLE_CONTENT
+
 
 def test_create_toy_already_exists(client):
     client.post("/toys/", json=TOY_DATA)
@@ -192,6 +200,14 @@ def test_patch_toy(client):
     assert response.json()["category"] == TOY_DATA["category"]
     assert response.json()["brand"] == TOY_DATA["brand"]
     assert response.json()["age_range"] == TOY_DATA["age_range"]
+
+def test_patch_toy_name_only_spaces(client):
+    response = client.patch(
+        "/toys/1",
+        json={"name": "   "},
+    )
+
+    assert response.status_code == status.HTTP_422_UNPROCESSABLE_CONTENT
 
 
 def test_patch_toy_not_found(client):
