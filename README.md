@@ -124,6 +124,17 @@ Utilize `.env.example` como base, copie suas informações para `.env` e ajuste 
 cp .env.example .env #Linux
 Copy-Item .env.example .env #Windows PowerShell
 ```
+As variáveis de ambiente são:
+
+| Variável | Descrição |
+|---|---|
+| `POSTGRES_DB` | Nome do banco de dados do PostgreSQL. |
+| `POSTGRES_USER` | Usuário do PostgreSQL. |
+| `POSTGRES_PASSWORD` | Senha do PostgreSQL. |
+| `DATABASE_URL` | URL de conexão utilizada pelo backend quando executado fora do Docker. |
+| `CORS_ORIGINS` | Origens autorizadas a acessar a API. |
+| `VITE_API_URL` | Endereço da API utilizado pelo frontend. |
+
 
 3. Subir o ambiente
 ```bash
