@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
 import { afterEach, expect, it, vi } from "vitest";
@@ -15,6 +15,39 @@ const toy = {
   quantity: 10,
 };
 
+const toys = [
+  {
+    id: 1,
+    name: "Boneca Barbie",
+    description: "Boneca articulada.",
+    price: "129.90",
+    category: "Bonecas",
+    brand: "Barbie",
+    age_range: "3 a 8 anos",
+    quantity: 5,
+  },
+  {
+    id: 2,
+    name: "Carro Hot Wheels",
+    description: "Carrinho em miniatura.",
+    price: "19.90",
+    category: "Carrinhos",
+    brand: "Hot Wheels",
+    age_range: "5 a 10 anos",
+    quantity: 30,
+  },
+  {
+    id: 3,
+    name: "Blocos de Montar",
+    description: "Caixa com peças para montar.",
+    price: "49.90",
+    category: "Blocos",
+    brand: "LEGO",
+    age_range: "6 a 12 anos",
+    quantity: 10,
+  },
+];
+
 function jsonResponse(data, status = 200) {
   return {
     ok: status >= 200 && status < 300,
@@ -29,6 +62,19 @@ function renderApp(initialEntry = "/brinquedos") {
       <App />
     </MemoryRouter>,
   );
+}
+
+function expectToyOrder(expectedNames) {
+  const list = screen.getByRole("list");
+  const items = within(list).getAllByRole("listitem");
+
+  expect(items).toHaveLength(expectedNames.length);
+
+  expectedNames.forEach((name, index) => {
+    expect(
+      within(items[index]).getByText(name, { selector: "p" }),
+    ).toBeInTheDocument();
+  });
 }
 
 afterEach(() => {
@@ -114,6 +160,10 @@ it("cadastra um brinquedo e atualiza a lista", async () => {
   ).toBeInTheDocument();
   expect(screen.getByText(`Descrição: ${toy.description}`)).toBeInTheDocument();
   expect(screen.getByText("Preço: R$ 49,90")).toBeInTheDocument();
+
+  expect(screen.getByRole("status")).toHaveTextContent(
+    "Brinquedo cadastrado com sucesso!",
+  );
 
   expect(fetchMock).toHaveBeenCalledTimes(3);
   expect(fetchMock.mock.calls[1][1].method).toBe("POST");
@@ -210,6 +260,10 @@ it("atualiza um brinquedo e retorna à listagem", async () => {
     }),
   ).toBeInTheDocument();
 
+  expect(screen.getByRole("status")).toHaveTextContent(
+    "Brinquedo atualizado com sucesso!",
+  );
+
   expect(fetchMock).toHaveBeenCalledTimes(3);
   expect(fetchMock.mock.calls[1][0]).toBe("http://localhost:8000/toys/1");
   expect(fetchMock.mock.calls[1][1].method).toBe("PUT");
@@ -283,6 +337,10 @@ it("exclui um brinquedo e atualiza a lista", async () => {
     await screen.findByText("Nenhum brinquedo cadastrado."),
   ).toBeInTheDocument();
 
+  expect(screen.getByRole("status")).toHaveTextContent(
+    "Brinquedo excluído com sucesso!",
+  );
+
   expect(fetchMock).toHaveBeenCalledTimes(2);
   expect(fetchMock.mock.calls[1][0]).toBe("http://localhost:8000/toys/1");
   expect(fetchMock.mock.calls[1][1].method).toBe("DELETE");
@@ -313,9 +371,175 @@ it("exibe erro quando não consegue excluir um brinquedo", async () => {
     await screen.findByText("Erro ao excluir o brinquedo."),
   ).toBeInTheDocument();
 
+  expect(screen.queryByRole("status")).not.toBeInTheDocument();
+
   expect(
     screen.getByText(toy.name, { selector: "p.font-semibold" }),
   ).toBeInTheDocument();
 
   expect(fetchMock).toHaveBeenCalledTimes(2);
+});
+
+it("filtra os brinquedos pelo nome", async () => {
+  const user = userEvent.setup();
+
+  vi.stubGlobal("fetch", vi.fn().mockResolvedValue(jsonResponse(toys)));
+
+  renderApp();
+
+  await screen.findByText("Boneca Barbie", {
+    selector: "p.font-semibold",
+  });
+
+  await user.type(screen.getByLabelText("Pesquisar"), "Barbie");
+
+  expectToyOrder(["Boneca Barbie"]);
+});
+
+it("filtra os brinquedos pela marca", async () => {
+  const user = userEvent.setup();
+
+  vi.stubGlobal("fetch", vi.fn().mockResolvedValue(jsonResponse(toys)));
+
+  renderApp();
+
+  await screen.findByText("Boneca Barbie", {
+    selector: "p.font-semibold",
+  });
+
+  await user.type(screen.getByLabelText("Pesquisar"), "LEGO");
+
+  expectToyOrder(["Blocos de Montar"]);
+});
+
+it("filtra os brinquedos pela categoria pesquisada", async () => {
+  const user = userEvent.setup();
+
+  vi.stubGlobal("fetch", vi.fn().mockResolvedValue(jsonResponse(toys)));
+
+  renderApp();
+
+  await screen.findByText("Boneca Barbie", {
+    selector: "p.font-semibold",
+  });
+
+  await user.type(screen.getByLabelText("Pesquisar"), "Carrinhos");
+
+  expectToyOrder(["Carro Hot Wheels"]);
+});
+
+it("filtra os brinquedos pela categoria selecionada", async () => {
+  const user = userEvent.setup();
+
+  vi.stubGlobal("fetch", vi.fn().mockResolvedValue(jsonResponse(toys)));
+
+  renderApp();
+
+  await screen.findByText("Boneca Barbie", {
+    selector: "p.font-semibold",
+  });
+
+  await user.selectOptions(screen.getByLabelText("Categoria"), "Bonecas");
+
+  expectToyOrder(["Boneca Barbie"]);
+});
+
+it("ordena os brinquedos pelo nome", async () => {
+  const user = userEvent.setup();
+
+  vi.stubGlobal("fetch", vi.fn().mockResolvedValue(jsonResponse(toys)));
+
+  renderApp();
+
+  await screen.findByText("Boneca Barbie", {
+    selector: "p.font-semibold",
+  });
+
+  await user.selectOptions(screen.getByLabelText("Ordenar por"), "name");
+
+  expectToyOrder(["Blocos de Montar", "Boneca Barbie", "Carro Hot Wheels"]);
+});
+
+it("ordena os brinquedos pelo menor preço", async () => {
+  const user = userEvent.setup();
+
+  vi.stubGlobal("fetch", vi.fn().mockResolvedValue(jsonResponse(toys)));
+
+  renderApp();
+
+  await screen.findByText("Boneca Barbie", {
+    selector: "p.font-semibold",
+  });
+
+  await user.selectOptions(screen.getByLabelText("Ordenar por"), "price");
+
+  expectToyOrder(["Carro Hot Wheels", "Blocos de Montar", "Boneca Barbie"]);
+});
+
+it("ordena os brinquedos pela menor quantidade em estoque", async () => {
+  const user = userEvent.setup();
+
+  vi.stubGlobal("fetch", vi.fn().mockResolvedValue(jsonResponse(toys)));
+
+  renderApp();
+
+  await screen.findByText("Boneca Barbie", {
+    selector: "p.font-semibold",
+  });
+
+  await user.selectOptions(screen.getByLabelText("Ordenar por"), "quantity");
+
+  expectToyOrder(["Boneca Barbie", "Blocos de Montar", "Carro Hot Wheels"]);
+});
+
+it("combina a pesquisa com o filtro de categoria", async () => {
+  const user = userEvent.setup();
+
+  vi.stubGlobal("fetch", vi.fn().mockResolvedValue(jsonResponse(toys)));
+
+  renderApp();
+
+  await screen.findByText("Boneca Barbie", {
+    selector: "p.font-semibold",
+  });
+
+  await user.type(screen.getByLabelText("Pesquisar"), "a");
+
+  await user.selectOptions(screen.getByLabelText("Categoria"), "Carrinhos");
+
+  expectToyOrder(["Carro Hot Wheels"]);
+});
+
+it("exibe mensagem quando a busca não encontra brinquedos", async () => {
+  const user = userEvent.setup();
+
+  vi.stubGlobal("fetch", vi.fn().mockResolvedValue(jsonResponse(toys)));
+
+  renderApp();
+
+  await screen.findByText("Boneca Barbie");
+
+  await user.type(screen.getByLabelText("Pesquisar"), "Inexistente");
+
+  expect(
+    screen.getByText(
+      "Nenhum brinquedo encontrado com os filtros selecionados.",
+    ),
+  ).toBeInTheDocument();
+});
+
+it("realiza busca sem diferenciar letras maiúsculas e minúsculas", async () => {
+  const user = userEvent.setup();
+
+  vi.stubGlobal("fetch", vi.fn().mockResolvedValue(jsonResponse(toys)));
+
+  renderApp();
+
+  await screen.findByText("Boneca Barbie");
+
+  await user.type(screen.getByLabelText("Pesquisar"), "bArBiE");
+
+  expect(screen.getByText("Boneca Barbie")).toBeInTheDocument();
+  expect(screen.queryByText("Carro Hot Wheels")).not.toBeInTheDocument();
+  expect(screen.queryByText("Blocos de Montar")).not.toBeInTheDocument();
 });
