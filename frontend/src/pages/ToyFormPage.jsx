@@ -36,7 +36,13 @@ export function ToyFormPage() {
       await createToy(values);
     }
 
-    navigate("/brinquedos");
+    navigate("/brinquedos", {
+      state: {
+        successMessage: isEditing
+          ? "Brinquedo atualizado com sucesso!"
+          : "Brinquedo cadastrado com sucesso!",
+      },
+    });
   }
 
   return (

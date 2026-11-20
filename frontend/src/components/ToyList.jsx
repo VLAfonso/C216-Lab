@@ -1,10 +1,10 @@
 import { Link } from "react-router-dom";
 
-export function ToyList({ toys, onDelete }) {
+export function ToyList({ toys, onDelete, emptyMessage }) {
   if (toys.length === 0) {
     return (
       <p className="rounded-lg border border-slate-200 bg-white p-6 text-center text-slate-500">
-        Nenhum brinquedo cadastrado.
+        {emptyMessage}
       </p>
     );
   }

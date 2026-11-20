@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { ToyList } from "../components/ToyList";
 import { deleteToy, listToys } from "../services/toys";
 
@@ -11,6 +11,12 @@ export function ToyListPage() {
   const [category, setCategory] = useState("");
   const [sort, setSort] = useState("name");
   const [deleteError, setDeleteError] = useState("");
+
+  const location = useLocation();
+
+  const [successMessage, setSuccessMessage] = useState(
+    location.state?.successMessage ?? "",
+  );
 
   useEffect(() => {
     listToys()
@@ -57,7 +63,9 @@ export function ToyListPage() {
         currentToys.filter((item) => item.id !== toy.id),
       );
       setDeleteError("");
+      setSuccessMessage("Brinquedo excluído com sucesso!");
     } catch (error) {
+      setSuccessMessage("");
       setDeleteError(error.message);
     }
   }
@@ -154,7 +162,24 @@ export function ToyListPage() {
       )}
 
       {!loading && !loadError && (
-        <ToyList toys={filteredToys} onDelete={handleDelete} />
+        <ToyList
+          toys={filteredToys}
+          onDelete={handleDelete}
+          emptyMessage={
+            toys.length === 0
+              ? "Nenhum brinquedo cadastrado."
+              : "Nenhum brinquedo encontrado com os filtros selecionados."
+          }
+        />
+      )}
+
+      {successMessage && (
+        <p
+          role="status"
+          className="rounded-lg border border-green-200 bg-green-50 p-4 text-sm text-green-700"
+        >
+          {successMessage}
+        </p>
       )}
     </section>
   );
