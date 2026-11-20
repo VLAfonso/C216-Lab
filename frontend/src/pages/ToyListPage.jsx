@@ -65,11 +65,13 @@ export function ToyListPage() {
   return (
     <section className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2 className="text-xl font-semibold">Brinquedos cadastrados</h2>
+        <h2 className="text-xl font-semibold text-slate-800">
+          Brinquedos cadastrados
+        </h2>
 
         <Link
           to="/brinquedos/novo"
-          className="rounded bg-blue-600 px-4 py-2 font-medium text-white hover:bg-blue-700"
+          className="rounded-lg bg-slate-700 px-4 py-2.5 font-medium text-white shadow-sm transition-colors hover:bg-slate-800"
         >
           Adicionar brinquedo
         </Link>
@@ -77,7 +79,10 @@ export function ToyListPage() {
 
       <div className="grid gap-3 sm:grid-cols-3">
         <div className="space-y-1 sm:col-span-3">
-          <label htmlFor="toy-search" className="text-sm font-medium">
+          <label
+            htmlFor="toy-search"
+            className="text-sm font-medium text-slate-700"
+          >
             Pesquisar
           </label>
           <input
@@ -86,19 +91,22 @@ export function ToyListPage() {
             value={search}
             onChange={(event) => setSearch(event.target.value)}
             placeholder="Nome, marca ou categoria..."
-            className="w-full rounded border border-slate-300 p-2"
+            className="w-full rounded-lg border border-slate-300 bg-white p-2.5 text-slate-700 shadow-sm outline-none transition focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
           />
         </div>
 
         <div className="space-y-1">
-          <label htmlFor="toy-category-filter" className="text-sm font-medium">
+          <label
+            htmlFor="toy-category-filter"
+            className="text-sm font-medium text-slate-700"
+          >
             Categoria
           </label>
           <select
             id="toy-category-filter"
             value={category}
             onChange={(event) => setCategory(event.target.value)}
-            className="w-full rounded border border-slate-300 p-2"
+            className="w-full rounded-lg border border-slate-300 bg-white p-2.5 text-slate-700 shadow-sm outline-none transition focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
           >
             <option value="">Todas as categorias</option>
             {categories.map((item) => (
@@ -110,14 +118,17 @@ export function ToyListPage() {
         </div>
 
         <div className="space-y-1">
-          <label htmlFor="toy-sort" className="text-sm font-medium">
+          <label
+            htmlFor="toy-sort"
+            className="text-sm font-medium text-slate-700"
+          >
             Ordenar por
           </label>
           <select
             id="toy-sort"
             value={sort}
             onChange={(event) => setSort(event.target.value)}
-            className="w-full rounded border border-slate-300 p-2"
+            className="w-full rounded-lg border border-slate-300 bg-white p-2.5 text-slate-700 shadow-sm outline-none transition focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
           >
             <option value="name">Nome (A-Z)</option>
             <option value="price">Menor preço</option>
@@ -126,11 +137,21 @@ export function ToyListPage() {
         </div>
       </div>
 
-      {loading && <p>Carregando brinquedos...</p>}
+      {loading && (
+        <p className="text-sm text-slate-500">Carregando brinquedos...</p>
+      )}
 
-      {loadError && <p role="alert">{loadError}</p>}
+      {loadError && (
+        <p role="alert" className="text-sm text-red-700">
+          {loadError}
+        </p>
+      )}
 
-      {deleteError && <p role="alert">{deleteError}</p>}
+      {deleteError && (
+        <p role="alert" className="text-sm text-red-700">
+          {deleteError}
+        </p>
+      )}
 
       {!loading && !loadError && (
         <ToyList toys={filteredToys} onDelete={handleDelete} />

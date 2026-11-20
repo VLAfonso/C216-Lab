@@ -44,19 +44,30 @@ export function ToyFormPage() {
       <div className="space-y-2">
         <Link
           to="/brinquedos"
-          className="text-sm text-blue-600 hover:underline"
+          className="inline-flex items-center text-sm font-medium text-slate-600 transition-colors hover:text-slate-900 hover:underline"
         >
           Voltar para os brinquedos
         </Link>
 
-        <h2 className="text-xl font-semibold">
+        <h2 className="text-2xl font-semibold text-slate-800">
           {isEditing ? "Editar brinquedo" : "Adicionar brinquedo"}
         </h2>
       </div>
 
-      {loading && <p>Carregando brinquedo...</p>}
+      {loading && (
+        <p className="rounded-lg border border-slate-200 bg-white p-4 text-sm text-slate-500">
+          Carregando brinquedo...
+        </p>
+      )}
 
-      {loadError && <p className="text-red-600">{loadError}</p>}
+      {loadError && (
+        <p
+          role="alert"
+          className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700"
+        >
+          {loadError}
+        </p>
+      )}
 
       {!loading && !loadError && (
         <ToyForm
