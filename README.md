@@ -176,7 +176,7 @@ make test
 ### **Testes Unitários**
 Os testes unitários são divididos entre `services` e `routes`.  
 Podem ser executados por meio do comando:
-```
+```bash
 make test-unit
 ```
 > `cd backend && poetry run pytest tests/unit`
@@ -190,7 +190,7 @@ Os testes de `routes` verificam o comportamento dos endpoints da API, incluindo 
 ### **Testes de Integração**
 Os testes de integração validam o comportamento das rotas em conjunto com os demais componentes do backend, incluindo a comunicação com o banco de dados.  
 Podem ser executados por meio do comando:
-```
+```bash
 make test-integration
 ```
 > `cd backend && poetry run pytest tests/integration`
@@ -203,7 +203,7 @@ Os testes verificam:
 
 ## **Frontend**
 Os testes unitários e de integração podem ser executados por meio do comando:
-```
+```bash
 make frontend-test
 ```
 > `npm --prefix frontend run test`
@@ -234,8 +234,15 @@ Os testes verificam:
 
 ### **Testes E2E**
 Os testes ponta a ponta verificam os principais fluxos da aplicação, simulando a interação do usuário com o sistema.  
-Podem ser executados por meio do comando:
+
+Caso seja a a primeira execução, é necessário instalar o navegador utilizado pelo Playwright antes de executar os testes e2e:
+```bash
+cd frontend
+npx playwright install chromium
 ```
+
+Os testes podem ser executados por meio do comando:
+```bash
 make e2e
 ```
 Os cenários implementados verificam:
