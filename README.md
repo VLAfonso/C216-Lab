@@ -7,7 +7,7 @@ O objetivo deste projeto é desenvolver uma aplicação web full-stack original 
 O tema escolhido foi **Gerenciamento de Estoque de uma Loja de Brinquedos**. A aplicação permite consultar, cadastrar, editar e excluir **brinquedos**, armazenando informações como nome, descrição, preço, categoria, marca, faixa etária e quantidade em estoque. 
 
 ### :movie_camera: **Vídeo de apresentação:** 
-O vídeo da apresentação estão disponível no [YouTube](https://youtu.be/jWC1Uy3VZd0).
+O vídeo da apresentação está disponível no [YouTube](https://youtu.be/jWC1Uy3VZd0).
 
 # :jigsaw: Funcionalidades
 A aplicação desenvolvida no projeto oferece as seguintes funcionalidades para o gerenciamento do estoque:
